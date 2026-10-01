@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Random Hash Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0d1117;
+            color: #e6edf3;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 750px;
+            text-align: center;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 45px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2.3rem;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .generate-button {
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .generate-button:hover {
+            background: #2ea043;
+        }
+
+        .hash-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .algorithm {
+            color: #8b949e;
+            margin-bottom: 10px;
+        }
+
+        .hash-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 18px;
+            font-family: monospace;
+            font-size: 1rem;
+            overflow-wrap: anywhere;
+            margin-bottom: 15px;
+        }
+
+        .copy-button {
+            background: #21262d;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background: #30363d;
+        }
+
+        .notice {
+            margin-top: 35px;
+            color: #8b949e;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>Random Hash Generator</h1>
+
+        <p class="subtitle">
+            Generate a random password hash for cybersecurity
+            training and password-cracking research.
+        </p>
+
+        <button class="generate-button" onclick="generateHash()">
+            Generate Hash
+        </button>
+
+        <div class="hash-container" id="hashContainer">
+
+            <div class="algorithm" id="algorithm"></div>
+
+            <div class="hash-box" id="hashOutput"></div>
+
+            <button class="copy-button" onclick="copyHash()">
+                Copy Hash
+            </button>
+
+        </div>
+
+        <p class="notice">
+            Generated hashes are provided for authorized
+            cybersecurity training and educational research.
+        </p>
+
+    </main>
+
+    <script>
+        async function generateHash() {
+
+            const button = document.querySelector(".generate-button");
+
+            button.disabled = true;
+            button.textContent = "Generating...";
+
+            try {
+
+                const response = await fetch("/generate");
+
+                if (!response.ok) {
+                    throw new Error("Unable to generate hash.");
+                }
+
+                const data = await response.json();
+
+                document.getElementById("hashOutput").textContent = data.hash;
+
+                document.getElementById("algorithm").textContent =
+                    "Algorithm: " + data.algorithm;
+
+                document.getElementById("hashContainer").style.display =
+                    "block";
+
+            } catch (error) {
+
+                alert("Something went wrong while generating the hash.");
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = "Generate Hash";
+
+            }
+        }
+
+
+        async function copyHash() {
+
+            const hash =
+                document.getElementById("hashOutput").textContent;
+
+            await navigator.clipboard.writeText(hash);
+
+            const button = document.querySelector(".copy-button");
+
+            button.textContent = "Copied!";
+
+            setTimeout(() => {
+                button.textContent = "Copy Hash";
+            }, 1500);
+        }
+    </script>
+
+</body>
+</html>
