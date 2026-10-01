@@ -1,28 +1,25 @@
 from flask import Flask, render_template, jsonify
-import gzip
 import hashlib
 import secrets
 import os
 
 app = Flask(__name__)
 
-ROCKYOU_FILE = os.path.join(
+WORDLIST_FILE = os.path.join(
     os.path.dirname(__file__),
-    "rockyou.txt.gz"
+    "wordlist.txt"
 )
 
 
 def load_passwords():
     """
-    Load passwords from the compressed RockYou wordlist.
-    latin-1 is used because RockYou contains bytes that may
-    not decode correctly as UTF-8.
+    Load passwords from the training wordlist.
     """
     passwords = []
 
-    with gzip.open(
-        ROCKYOU_FILE,
-        "rt",
+    with open(
+        WORDLIST_FILE,
+        "r",
         encoding="latin-1",
         errors="ignore"
     ) as file:
@@ -46,16 +43,15 @@ def home():
 
 @app.route("/generate")
 def generate_hash():
-    # Select one password randomly from RockYou.
+    # Randomly select one candidate from the wordlist.
     password = secrets.choice(passwords)
 
-    # Generate its SHA-256 hash.
+    # Generate a SHA-256 hash of the selected candidate.
     hash_value = hashlib.sha256(
         password.encode("latin-1")
     ).hexdigest()
 
-    # Only the hash is returned to the browser.
-    # The original password stays on the server.
+    # Only return the hash. The plaintext remains server-side.
     return jsonify({
         "hash": hash_value,
         "algorithm": "SHA-256"
